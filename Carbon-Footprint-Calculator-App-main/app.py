@@ -577,9 +577,9 @@ button[title="View fullscreen"] { display: none !important; }
 
 # ── Load Models ──────────────────────────────────────────────────────────────
 @st.cache_resource
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def load_models():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     scaler_path = os.path.join(BASE_DIR, "models", "scale.sav")
     model_path = os.path.join(BASE_DIR, "models", "model.sav")
 
