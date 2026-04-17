@@ -575,9 +575,18 @@ button[title="View fullscreen"] { display: none !important; }
 
 # ── Load Models ──────────────────────────────────────────────────────────────
 @st.cache_resource
+import os
+import pickle
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def load_models():
-    ss = pickle.load(open("./models/scale.sav", "rb"))
-    model = pickle.load(open("./models/model.sav", "rb"))
+    scaler_path = os.path.join(BASE_DIR, "models", "scale.sav")
+    model_path = os.path.join(BASE_DIR, "models", "model.sav")
+
+    ss = pickle.load(open(scaler_path, "rb"))
+    model = pickle.load(open(model_path, "rb"))
+
     return ss, model
 
 ss, model = load_models()
