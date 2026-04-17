@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 import base64
 import math
+import os
+
 
 # ── Page Config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -575,9 +577,6 @@ button[title="View fullscreen"] { display: none !important; }
 
 # ── Load Models ──────────────────────────────────────────────────────────────
 @st.cache_resource
-import os
-import pickle
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def load_models():
@@ -588,9 +587,6 @@ def load_models():
     model = pickle.load(open(model_path, "rb"))
 
     return ss, model
-
-ss, model = load_models()
-
 # ── Did-You-Know Facts ───────────────────────────────────────────────────────
 facts = [
     "Each year, human activities release over **40 billion tonnes** of CO₂ into the atmosphere.",
