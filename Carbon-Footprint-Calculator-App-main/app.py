@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 import pandas as pd
 import numpy as np
 import pickle
@@ -574,10 +575,12 @@ button[title="View fullscreen"] { display: none !important; }
 """, unsafe_allow_html=True)
 
 # ── Load Models ──────────────────────────────────────────────────────────────
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 @st.cache_resource
 def load_models():
-    ss = pickle.load(open("./models/scale.sav", "rb"))
-    model = pickle.load(open("./models/model.sav", "rb"))
+    ss = pickle.load(open(os.path.join(_BASE_DIR, "models", "scale.sav"), "rb"))
+    model = pickle.load(open(os.path.join(_BASE_DIR, "models", "model.sav"), "rb"))
     return ss, model
 
 ss, model = load_models()
