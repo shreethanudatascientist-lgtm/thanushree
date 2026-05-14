@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 import base64
 import math
-import os
-
 
 # ── Page Config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -58,7 +56,7 @@ def hesapla(model, ss, sample_df):
                         'Vehicle Type_None', 'Vehicle Type_diesel', 'Vehicle Type_electric',
                         'Vehicle Type_hybrid', 'Vehicle Type_lpg', 'Vehicle Type_petrol']]
     copy_df[list(set(copy_df.columns) - set(travels.columns))] = 0
-    travel = np.exp(model.predict(ss.transform(copy_df)))
+    travel = np.exp(model.predict(ss.transform(copy_df)).ravel())
 
     copy_df = sample_df.copy()
     energys = copy_df[['Heating Energy Source_coal','How Often Shower','How Long TV PC Daily Hour',
@@ -67,7 +65,7 @@ def hesapla(model, ss, sample_df):
                         'Cooking_with_oven', 'Cooking_with_microwave', 'Cooking_with_grill',
                         'Cooking_with_airfryer', 'Heating Energy Source_wood','Energy efficiency']]
     copy_df[list(set(copy_df.columns) - set(energys.columns))] = 0
-    energy = np.exp(model.predict(ss.transform(copy_df)))
+    energy = np.exp(model.predict(ss.transform(copy_df)).ravel())
 
     copy_df = sample_df.copy()
     wastes = copy_df[['Do You Recyle_Paper','How Many New Clothes Monthly',
@@ -75,7 +73,7 @@ def hesapla(model, ss, sample_df):
                        'Do You Recyle_Plastic','Do You Recyle_Glass',
                        'Do You Recyle_Metal','Social Activity']]
     copy_df[list(set(copy_df.columns) - set(wastes.columns))] = 0
-    waste = np.exp(model.predict(ss.transform(copy_df)))
+    waste = np.exp(model.predict(ss.transform(copy_df)).ravel())
 
     copy_df = sample_df.copy()
     diets = copy_df[['Diet_omnivore','Diet_pescatarian','Diet_vegan','Diet_vegetarian',
@@ -84,7 +82,7 @@ def hesapla(model, ss, sample_df):
                       'Heating Energy Source_electricity','Heating Energy Source_natural gas',
                       'Heating Energy Source_wood']]
     copy_df[list(set(copy_df.columns) - set(diets.columns))] = 0
-    diet = np.exp(model.predict(ss.transform(copy_df)))
+    diet = np.exp(model.predict(ss.transform(copy_df)).ravel())
 
     return {"🚗 Travel": travel[0], "⚡ Energy": energy[0], "🗑️ Waste": waste[0], "🥗 Diet": diet[0]}
 
@@ -577,16 +575,13 @@ button[title="View fullscreen"] { display: none !important; }
 
 # ── Load Models ──────────────────────────────────────────────────────────────
 @st.cache_resource
-
 def load_models():
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    scaler_path = os.path.join(BASE_DIR, "models", "scale.sav")
-    model_path = os.path.join(BASE_DIR, "models", "model.sav")
-
-    ss = pickle.load(open(scaler_path, "rb"))
-    model = pickle.load(open(model_path, "rb"))
-
+    ss = pickle.load(open("./models/scale.sav", "rb"))
+    model = pickle.load(open("./models/model.sav", "rb"))
     return ss, model
+
+ss, model = load_models()
+
 # ── Did-You-Know Facts ───────────────────────────────────────────────────────
 facts = [
     "Each year, human activities release over **40 billion tonnes** of CO₂ into the atmosphere.",
@@ -764,7 +759,7 @@ with btn_col:
     calculate = st.button("🌿  Calculate My Carbon Footprint", type="primary", use_container_width=True)
 
 if calculate:
-    prediction = round(np.exp(model.predict(ss.transform(sample_df))[0]))
+    prediction = round(float(np.exp(model.predict(ss.transform(sample_df)).ravel()[0])))
     tree_count = round(prediction / 411.4)
     breakdown = hesapla(model, ss, sample_df)
     total_bd = sum(breakdown.values())
@@ -877,22 +872,3 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
-
-try:
-    with open("./models/scale.sav", "rb") as f:
-        ss = pickle.load(f)
-
-    with open("./models/model.sav", "rb") as f:
-        model = pickle.load(f)
-
-    prediction = round(
-        np.exp(model.predict(ss.transform(sample_df))[0])
-    )
-
-except FileNotFoundError:
-    st.error("Model files are missing.")
-    st.stop()
-
-except Exception as e:
-    st.error(f"Prediction error: {e}")
-    st.stop()
