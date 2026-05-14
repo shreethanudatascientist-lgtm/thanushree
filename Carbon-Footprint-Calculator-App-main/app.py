@@ -877,3 +877,22 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
+try:
+    with open("./models/scale.sav", "rb") as f:
+        ss = pickle.load(f)
+
+    with open("./models/model.sav", "rb") as f:
+        model = pickle.load(f)
+
+    prediction = round(
+        np.exp(model.predict(ss.transform(sample_df))[0])
+    )
+
+except FileNotFoundError:
+    st.error("Model files are missing.")
+    st.stop()
+
+except Exception as e:
+    st.error(f"Prediction error: {e}")
+    st.stop()
